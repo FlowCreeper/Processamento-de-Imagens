@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "procdeimg"
+version = "0.1.0"
+description = ""
+authors = ["FlowCreeper <caiocoutinho2012@hotmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+numpy = "^2.4.2"
+pillow = "^12.1.1"
+fastapi = {extras = ["standard"], version = "^0.128.8"}
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
