@@ -4,6 +4,8 @@ from brilho_contraste import ajustar_brilho_contraste
 from escala_cinza import converter_para_escala_de_cinza
 from fastapi.middleware.cors import CORSMiddleware
 import shutil
+from enum import Enum
+import json
 
 origins = [
     "http://localhost:3000",
@@ -25,6 +27,11 @@ app.add_middleware(
 image_path = 'image.png'
 modified_image_path = 'image_alterada.png'
 
+class GrayConversionMode(Enum):
+    AVERAGE = 'average'
+    LUMINOSITY = 'luminosity'
+    DESATURATION = 'desaturation'
+
 @router.get("/brightness-contrast")
 async def brightness_contrast(brightness: int = 0, contrast: float = 1.0):
     try:
@@ -36,11 +43,11 @@ async def brightness_contrast(brightness: int = 0, contrast: float = 1.0):
         return Response(content="An unexpected error occurred", status_code=500)
         
 @router.get("/b-and-w")
-async def black_and_white():
+async def black_and_white(mode: GrayConversionMode):
     try:
-        converter_para_escala_de_cinza(modified_image_path)
+        tempo = converter_para_escala_de_cinza(modified_image_path, mode.value)
         
-        return Response()
+        return Response(content=json.dumps({'time': tempo}))
     except BaseException as e:
         print(e)
         return Response(content="An unexpected error occurred", status_code=500)
