@@ -1,16 +1,64 @@
-from fastapi import FastAPI
-from fastapi.responses import FileResponse
+from fastapi import FastAPI, APIRouter
+from fastapi.responses import FileResponse, Response
 from brilho_contraste import ajustar_brilho_contraste
-import os
+from escala_cinza import converter_para_escala_de_cinza
+from fastapi.middleware.cors import CORSMiddleware
+import shutil
+
+origins = [
+    "http://localhost:3000",
+    "http://localhost:3001",
+]
 
 app = FastAPI()
 
-image_path = 'image_alterada.png'
+router = APIRouter(prefix="/api")
 
-@app.get("/api/brightness-contrast")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+image_path = 'image.png'
+modified_image_path = 'image_alterada.png'
+
+@router.get("/brightness-contrast")
 async def brightness_contrast(brightness: int = 0, contrast: float = 1.0):
-    ajustar_brilho_contraste('image.png', brightness, contrast)
+    try:
+        ajustar_brilho_contraste(modified_image_path, brightness, contrast)
     
-    if os.path.exists(image_path):
-        return FileResponse(image_path, media_type="image/png")
-    return {"error": "File not found!"}
+        return Response()
+    except BaseException as e:
+        print(e)
+        return Response(content="An unexpected error occurred", status_code=500)
+        
+@router.get("/b-and-w")
+async def black_and_white():
+    try:
+        converter_para_escala_de_cinza(modified_image_path)
+        
+        return Response()
+    except BaseException as e:
+        print(e)
+        return Response(content="An unexpected error occurred", status_code=500)
+    
+@router.get("/image")
+async def image():
+    try:
+        return FileResponse(modified_image_path)
+    except BaseException as e:
+        print(e)
+        return Response(content="An unexpected error occurred", status_code=500)
+    
+@router.get("/reset")
+async def reset():
+    try:
+        shutil.copy2(image_path, modified_image_path)
+    except BaseException as e:
+        print(e)
+        return Response(content="An unexpected error occurred", status_code=500)
+    
+app.include_router(router)

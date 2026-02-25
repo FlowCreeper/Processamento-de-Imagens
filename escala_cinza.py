@@ -13,6 +13,6 @@ def converter_para_escala_de_cinza(caminho):
             cinza = (r + g + b) // 3
             imagem_cinza.putpixel((x, y), cinza)
     
-    imagem_cinza.save('image_preto_branco.png')
+    imagem_cinza.save('image_alterada.png')
     
 converter_para_escala_de_cinza('image.png')

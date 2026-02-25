@@ -1,0 +1,15 @@
+# How to Run
+
+Install dependencies:
+```bash
+poetry install
+```
+
+Run server:
+```bash
+fastapi dev
+```
+
+If needed allow front in:
+
+[main.py](main.py)
